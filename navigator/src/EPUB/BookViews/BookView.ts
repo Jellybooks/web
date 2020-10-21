@@ -10,4 +10,14 @@ export interface IBookView {
   goToDirection(direction: EPUBSpreadViewDirection): boolean;
   goToProgression(progression: number): boolean;
   goToFragment(fragment: string): boolean;
+
+
+  atStart(): boolean;
+  atEnd(): boolean;
+
+  goToPreviousPage(): boolean;
+  goToNextPage(): boolean;
+  getCurrentPage(): number;
+  getPageCount(): number;
+
 }
