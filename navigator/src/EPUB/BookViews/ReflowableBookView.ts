@@ -228,6 +228,7 @@ export default class ReflowableBookView implements IBookView {
         }
     }
 
+    // TODO: replaces onFirstPage with this, since we should be able to know in scrollmode if we are at the top
     atStart(): boolean {
         if (this.isScrollmode()) {
             return document.scrollingElement.scrollTop === 0;
@@ -236,7 +237,7 @@ export default class ReflowableBookView implements IBookView {
             return (leftWidth <= 0);
         }
     }
-
+    // TODO: replaces onLastPage with this, since we should be able to know in scrollmode if we are at the bottom
     atEnd(): boolean {
         if (this.isScrollmode()) {
             return (Math.ceil(document.scrollingElement.scrollHeight - document.scrollingElement.scrollTop) - 1) <= BrowserUtilities.getHeight();
@@ -246,6 +247,7 @@ export default class ReflowableBookView implements IBookView {
         }
     }
 
+    // TODO: needs revisiting 
     protected setSize(): void {
         if (this.isScrollmode()) {
             for (const iFrameView of this.iFrameViews) {
@@ -304,6 +306,9 @@ export default class ReflowableBookView implements IBookView {
             }
         }
     }
+
+    // TODO: Paginated functions needs revisiting 
+
     protected checkForFixedScrollWidth(): void {
         if (this.isPaginated()) {
             // Determine if the scroll width changes when the left position
@@ -314,8 +319,6 @@ export default class ReflowableBookView implements IBookView {
             this.hasFixedScrollWidth = (body.scrollWidth === originalScrollWidth);
         }
     }
-
-    // TODO: Paginated functions needs revisiting 
 
     /** Returns the total width of the columns that are currently
     positioned to the left of the iframe viewport. */
