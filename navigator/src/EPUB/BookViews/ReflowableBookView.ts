@@ -19,8 +19,18 @@ export default class ReflowableBookView implements IBookView {
     activeView: number = 0;
 
     private scrollMode: boolean
+    // TODO: needs to be used for more than just set a bollean, this is where we can set anything that might be needed for the mode
     setMode(scroll: boolean) {
         this.scrollMode = scroll
+        for (const iFrameView of this.iFrameViews) {
+            const html = iFrameView.iFrameWindow.documentElement;
+            if (scroll) {
+                html.style.setProperty("--USER__scroll", "readium-scroll-on");
+            } else {
+                html.style.setProperty("--USER__scroll", "readium-scroll-off");
+            }
+        }
+        this.checkForFixedScrollWidth();
     }
     isPaginated() {
         return this.scrollMode === false
@@ -29,54 +39,30 @@ export default class ReflowableBookView implements IBookView {
         return this.scrollMode === true
     }
 
-
-
     // TODO: needs revisiting 
     start(progression: number): void {
         this.setSize();
-
-        if (this.isScrollmode()) {
-            for (const iFrameView of this.iFrameViews) {
-                const html = iFrameView.iFrameWindow.documentElement;
-                html.style.setProperty("--USER__scroll", "readium-scroll-on");
-            }
-        } else {
-            for (const iFrameView of this.iFrameViews) {
-                const html = iFrameView.iFrameWindow.documentElement;
-                html.style.setProperty("--USER__scroll", "readium-scroll-off");
-            }
-            this.checkForFixedScrollWidth();
-        }
+        this.setMode(this.scrollMode)
         this.goToProgression(progression);
     }
 
     // TODO: needs revisiting 
     stop(): void {
-        if (this.isScrollmode()) {
-            for (const iFrameView of this.iFrameViews) {
-                iFrameView.iFrame.height = "0";
-                iFrameView.iFrame.width = "0";
+        for (const iFrameView of this.iFrameViews) {
 
-                const body = iFrameView.iFrameWindow.body;
-
-                const images = Array.prototype.slice.call(body.querySelectorAll("img"));
-                for (const image of images) {
-                    image.style.maxWidth = "";
-                    image.style.height = "";
-                }
-            }
-        } else {
-            for (const iFrameView of this.iFrameViews) {
-                const body = iFrameView.iFrameWindow.body;
-                const images = Array.prototype.slice.call(body.querySelectorAll("img, svg"));
-                for (const image of images) {
-                    image.style.maxWidth = "";
-                    image.style.maxHeight = "";
-                    image.style.marginLeft = "";
-                    image.style.marginRight = "";
-                }
+            iFrameView.iFrame.height = "0";
+            iFrameView.iFrame.width = "0";
+            const body = iFrameView.iFrameWindow.body;
+            const images = Array.prototype.slice.call(body.querySelectorAll("img, svg"));
+            for (const image of images) {
+                image.style.maxWidth = "";
+                image.style.height = "";
+                image.style.maxHeight = "";
+                image.style.marginLeft = "";
+                image.style.marginRight = "";
             }
         }
+
     }
 
 
@@ -319,12 +305,14 @@ export default class ReflowableBookView implements IBookView {
         }
     }
     protected checkForFixedScrollWidth(): void {
-        // Determine if the scroll width changes when the left position
-        // changes. This differs across browsers and sometimes across
-        // books in the same browser.
-        const body = this.iFrameViews[this.activeView].iFrameWindow.body;
-        const originalScrollWidth = body.scrollWidth;
-        this.hasFixedScrollWidth = (body.scrollWidth === originalScrollWidth);
+        if (this.isPaginated()) {
+            // Determine if the scroll width changes when the left position
+            // changes. This differs across browsers and sometimes across
+            // books in the same browser.
+            const body = this.iFrameViews[this.activeView].iFrameWindow.body;
+            const originalScrollWidth = body.scrollWidth;
+            this.hasFixedScrollWidth = (body.scrollWidth === originalScrollWidth);
+        }
     }
 
     // TODO: Paginated functions needs revisiting 
